@@ -1,0 +1,649 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flagship Project Ideas — AWS × React</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap"
+        rel="stylesheet">
+    <style>
+        :root {
+            --bg: #0a0a0f;
+            --surface: #111118;
+            --border: #1e1e2e;
+            --text: #e8e8f0;
+            --muted: #5a5a7a;
+            --accent1: #7c6aff;
+            --accent2: #ff6a3d;
+            --accent3: #3dffc0;
+            --accent4: #ffd93d;
+            --accent5: #ff3d8a;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'IBM Plex Mono', monospace;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Grid background */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(124, 106, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(124, 106, 255, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 60px 24px 80px;
+        }
+
+        /* Header */
+        .header {
+            margin-bottom: 64px;
+            text-align: center;
+        }
+
+        .header .eyebrow {
+            font-size: 11px;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--accent1);
+            margin-bottom: 16px;
+            opacity: 0;
+            animation: fadeUp 0.6s 0.1s forwards;
+        }
+
+        .header h1 {
+            font-family: 'Syne', sans-serif;
+            font-size: clamp(36px, 6vw, 72px);
+            font-weight: 800;
+            line-height: 1;
+            letter-spacing: -0.03em;
+            margin-bottom: 20px;
+            opacity: 0;
+            animation: fadeUp 0.6s 0.2s forwards;
+        }
+
+        .header h1 span {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            font-weight: 400;
+            color: var(--accent1);
+        }
+
+        .header p {
+            font-size: 13px;
+            color: var(--muted);
+            line-height: 1.8;
+            max-width: 560px;
+            margin: 0 auto;
+            opacity: 0;
+            animation: fadeUp 0.6s 0.3s forwards;
+        }
+
+        /* Legend */
+        .legend {
+            display: flex;
+            gap: 24px;
+            justify-content: center;
+            flex-wrap: wrap;
+            margin-bottom: 48px;
+            opacity: 0;
+            animation: fadeUp 0.6s 0.4s forwards;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 11px;
+            color: var(--muted);
+            letter-spacing: 0.08em;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        /* Cards grid */
+        .cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2px;
+        }
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 32px;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+            transition: border-color 0.25s, transform 0.2s;
+            opacity: 0;
+            animation: fadeUp 0.5s forwards;
+        }
+
+        .card:hover {
+            transform: translateY(-2px);
+            z-index: 2;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background: var(--card-accent);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s;
+        }
+
+        .card:hover::before,
+        .card.active::before {
+            transform: scaleX(1);
+        }
+
+        .card.active {
+            border-color: var(--card-accent);
+            background: color-mix(in srgb, var(--card-accent) 5%, var(--surface));
+        }
+
+        .card-tag {
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--card-accent);
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .card-tag::before {
+            content: '';
+            width: 20px;
+            height: 1px;
+            background: var(--card-accent);
+        }
+
+        .card h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            letter-spacing: -0.02em;
+            margin-bottom: 10px;
+            line-height: 1.2;
+        }
+
+        .card .tagline {
+            font-size: 12px;
+            color: var(--muted);
+            line-height: 1.7;
+            margin-bottom: 24px;
+        }
+
+        .difficulty {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 20px;
+        }
+
+        .diff-label {
+            font-size: 10px;
+            color: var(--muted);
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+        }
+
+        .diff-bars {
+            display: flex;
+            gap: 3px;
+        }
+
+        .diff-bar {
+            width: 16px;
+            height: 4px;
+            border-radius: 2px;
+            background: var(--border);
+        }
+
+        .diff-bar.filled {
+            background: var(--card-accent);
+        }
+
+        .services {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-bottom: 24px;
+        }
+
+        .service-pill {
+            font-size: 10px;
+            padding: 4px 10px;
+            border-radius: 100px;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            letter-spacing: 0.05em;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .card:hover .service-pill,
+        .card.active .service-pill {
+            border-color: color-mix(in srgb, var(--card-accent) 40%, transparent);
+            color: color-mix(in srgb, var(--card-accent) 80%, var(--text));
+        }
+
+        /* Expanded panel */
+        .expand-panel {
+            display: none;
+            margin-top: 0;
+            grid-column: 1 / -1;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 0;
+            overflow: hidden;
+            animation: expandIn 0.35s cubic-bezier(0.23, 1, 0.32, 1);
+        }
+
+        .expand-panel.open {
+            display: block;
+        }
+
+        .expand-inner {
+            padding: 40px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 40px;
+        }
+
+        @media (max-width: 640px) {
+            .expand-inner {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .expand-section h3 {
+            font-family: 'Syne', sans-serif;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: var(--muted);
+            margin-bottom: 16px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border);
+        }
+
+        .feature-list {
+            list-style: none;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .feature-list li {
+            font-size: 12px;
+            line-height: 1.6;
+            color: var(--text);
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .feature-list li::before {
+            content: '→';
+            color: var(--expand-accent);
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .aws-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .aws-item {
+            background: var(--bg);
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            padding: 10px 12px;
+            font-size: 11px;
+        }
+
+        .aws-item .svc-name {
+            color: var(--expand-accent);
+            font-weight: 500;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .aws-item .svc-use {
+            color: var(--muted);
+            font-size: 10px;
+        }
+
+        .rec-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: color-mix(in srgb, var(--expand-accent) 15%, transparent);
+            border: 1px solid var(--expand-accent);
+            color: var(--expand-accent);
+            font-size: 11px;
+            padding: 6px 14px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+
+        .close-btn {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            background: none;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-family: 'IBM Plex Mono', monospace;
+            font-size: 11px;
+            padding: 8px 16px;
+            cursor: pointer;
+            margin-top: 32px;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: border-color 0.2s, color 0.2s;
+        }
+
+        .close-btn:hover {
+            border-color: var(--muted);
+            color: var(--text);
+        }
+
+        .cta-bar {
+            margin-top: 64px;
+            border-top: 1px solid var(--border);
+            padding-top: 40px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeUp 0.6s 1s forwards;
+        }
+
+        .cta-bar p {
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 16px;
+            letter-spacing: 0.05em;
+        }
+
+        .cta-bar .rec-text {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--text);
+            margin-bottom: 8px;
+        }
+
+        .cta-bar .rec-text span {
+            font-family: 'Instrument Serif', serif;
+            font-style: italic;
+            color: var(--accent1);
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(16px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes expandIn {
+            from {
+                opacity: 0;
+                transform: translateY(-8px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .number-tag {
+            position: absolute;
+            top: 24px;
+            right: 24px;
+            font-size: 48px;
+            font-family: 'Syne', sans-serif;
+            font-weight: 800;
+            color: var(--border);
+            line-height: 1;
+            pointer-events: none;
+            transition: color 0.3s;
+        }
+
+        .card:hover .number-tag,
+        .card.active .number-tag {
+            color: color-mix(in srgb, var(--card-accent) 20%, transparent);
+        }
+
+        .expand-header {
+            border-bottom: 1px solid var(--border);
+            padding: 20px 40px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .expand-header h2 {
+            font-family: 'Syne', sans-serif;
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .expand-header .expand-tag {
+            font-size: 10px;
+            color: var(--expand-accent);
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-left: auto;
+            padding: 4px 12px;
+            border: 1px solid var(--expand-accent);
+            border-radius: 2px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <div class="header">
+            <div class="eyebrow">Master Project</div>
+            <h1>ClientFlow Portal <span>Project-board</span></h1>
+        </div>
+
+        <div class="legend">
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#7c6aff"></div> SaaS / B2B
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#ff6a3d"></div> Consumer
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#3dffc0"></div> Platform
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#ffd93d"></div> Tooling
+            </div>
+            <div class="legend-item">
+                <div class="legend-dot" style="background:#ff3d8a"></div> AI-Enhanced
+            </div>
+        </div>
+
+        <div class="cards" id="cards">
+
+            <!-- Card 1 -->
+            <div class="card" style="--card-accent:#7c6aff; animation-delay:0.1s" data-id="1" onclick="toggle(this)">
+                <div class="number-tag">01</div>
+                <div class="card-tag">SaaS / B2B</div>
+                <h2>ClientFlow Portal</h2>
+                <p class="tagline">Service-business client portal with booking, admin dashboard, email notifications,
+                    and real-time status updates.</p>
+                <div class="difficulty">
+                    <span class="diff-label">Build Complexity|Time Investment</span>
+                    <div class="diff-bars">
+                        <div class="diff-bar filled"></div>
+                        <div class="diff-bar filled"></div>
+                        <div class="diff-bar filled"></div>
+                        <div class="diff-bar"></div>
+                        <div class="diff-bar"></div>
+                    </div>
+                    <span class="diff-label" style="margin-left:4px">Medium</span>
+                </div>
+                <div class="services">
+                    <span class="service-pill">Cognito</span>
+                    <span class="service-pill">DynamoDB</span>
+                    <span class="service-pill">Lambda</span>
+                    <span class="service-pill">SES</span>
+                    <span class="service-pill">EventBridge</span>
+                    <span class="service-pill">API GW</span>
+                    <span class="service-pill">S3+CloudFront</span>
+                </div>
+            </div>
+
+        </div><!-- /cards -->
+
+        <!-- Expanded Panel -->
+        <div id="panel-1" class="expand-panel" style="--expand-accent:#7c6aff">
+            <div class="expand-header">
+                <h2>ClientFlow Portal</h2>
+            </div>
+            <div class="expand-inner">
+                <div class="expand-section">
+                    <h3>What I'm Building</h3>
+                    <ul class="feature-list">
+                        <li>Marketing homepage + services page (front-end showcase)</li>
+                        <li>Client auth via Cognito — sign up, login, forgot password</li>
+                        <li>Booking request form with file attachment (S3)</li>
+                        <li>Client dashboard — view booking status in real-time</li>
+                        <li>Admin panel — accept/reject requests, send updates</li>
+                        <li>Email notifications via SES on every status change</li>
+                        <li>EventBridge rule triggers automated follow-up reminders</li>
+                        <li>Full deploy: CloudFront + S3 (frontend) + Lambda + API GW</li>
+                    </ul>
+                    <button class="close-btn" onclick="closePanel('panel-1')">✕ Close</button>
+                </div>
+                <div class="expand-section">
+                    <h3>AWS Services Used</h3>
+                    <div class="aws-grid">
+                        <div class="aws-item"><span class="svc-name">Cognito</span><span class="svc-use">Auth + user
+                                pools</span></div>
+                        <div class="aws-item"><span class="svc-name">API Gateway</span><span class="svc-use">REST API
+                                layer</span></div>
+                        <div class="aws-item"><span class="svc-name">Lambda</span><span class="svc-use">Business
+                                logic</span></div>
+                        <div class="aws-item"><span class="svc-name">DynamoDB</span><span class="svc-use">Bookings +
+                                users</span></div>
+                        <div class="aws-item"><span class="svc-name">S3</span><span class="svc-use">File uploads</span>
+                        </div>
+                        <div class="aws-item"><span class="svc-name">CloudFront</span><span class="svc-use">CDN + SPA
+                                host</span></div>
+                        <div class="aws-item"><span class="svc-name">SES</span><span class="svc-use">Transactional
+                                email</span></div>
+                        <div class="aws-item"><span class="svc-name">EventBridge</span><span
+                                class="svc-use">Event-driven logic</span></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let activeCard = null;
+        let activePanel = null;
+
+        function toggle(card) {
+            const id = card.dataset.id;
+            const panel = document.getElementById('panel-' + id);
+            const cardsEl = document.getElementById('cards');
+
+            if (activeCard === card) {
+                // close
+                card.classList.remove('active');
+                panel.classList.remove('open');
+                cardsEl.after(panel); // move back
+                activeCard = null;
+                activePanel = null;
+                return;
+            }
+
+            // close previous
+            if (activeCard) {
+                activeCard.classList.remove('active');
+                activePanel.classList.remove('open');
+            }
+
+            card.classList.add('active');
+            panel.classList.add('open');
+
+            // Insert panel after the row containing this card
+            const cardRect = card.getBoundingClientRect();
+            const allCards = [...cardsEl.children].filter(c => c.classList.contains('card'));
+            const cardsInRow = getCardsInSameRow(card, allCards);
+            const lastInRow = cardsInRow[cardsInRow.length - 1];
+            lastInRow.after(panel);
+
+            activeCard = card;
+            activePanel = panel;
+
+            setTimeout(() => panel.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 50);
+        }
+
+        function getCardsInSameRow(targetCard, allCards) {
+            const targetTop = targetCard.getBoundingClientRect().top;
+            return allCards.filter(c => Math.abs(c.getBoundingClientRect().top - targetTop) < 10);
+        }
+
+        function closePanel(panelId) {
+            const panel = document.getElementById(panelId);
+            if (activeCard) activeCard.classList.remove('active');
+            panel.classList.remove('open');
+            activeCard = null;
+            activePanel = null;
+        }
+    </script>
+</body>
+
+</html>
