@@ -11,6 +11,9 @@
 
 <!-- **[🚀 Live Demo](https://YOUR_CLOUDFRONT_URL.cloudfront.net)** · **[📐 Architecture Diagram](#architecture)** · **[🛠 Local Setup](#local-development)** -->
 
+[![Figma Screens](https://img.shields.io/badge/Figma-Screens_&_Wireframes-F24E1E?style=flat&logo=figma&logoColor=white)](https://www.figma.com/proto/oJFmuI4LtDbxAclJpWCB4D/02-Screens-Desktop?page-id=0%3A1&node-id=10-2&p=f&viewport=-201%2C410%2C0.08&t=7LZr5Vkwwvbm912B-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=10%3A2)
+[![Figma Design System](https://img.shields.io/badge/Figma-Design_System-F24E1E?style=flat&logo=figma&logoColor=white)](https://www.figma.com/design/aPbyMgNMgebBi6W58bnjY3/01-Design-System?node-id=48-8&t=DVKvouhTxbgukO8o-1)
+
 </div>
 
 ---
@@ -20,6 +23,7 @@
 ClientFlow Portal is a production-grade, full-stack web application that solves a real problem: **service businesses managing client requests through fragmented email chains and spreadsheets.**
 
 It provides:
+
 - A **public marketing site** for the service provider
 - A **client portal** — authenticated, personal dashboard where clients submit and track service requests
 - An **admin dashboard** — for the provider to triage requests, update statuses, and send notifications
@@ -40,10 +44,10 @@ It provides:
 
 ## Live Demo
 
-| Role | Login | What to Try |
-|------|-------|-------------|
-| **Client** | Sign up with your email | Submit a request with a file attachment, watch status update in dashboard |
-| **Admin** | Request admin access via contact form | Approve/reject requests, see how EventBridge triggers email notifications |
+| Role       | Login                                 | What to Try                                                               |
+| ---------- | ------------------------------------- | ------------------------------------------------------------------------- |
+| **Client** | Sign up with your email               | Submit a request with a file attachment, watch status update in dashboard |
+| **Admin**  | Request admin access via contact form | Approve/reject requests, see how EventBridge triggers email notifications |
 
 > Demo environment uses AWS SES sandbox — email notifications deliver to verified addresses only.
 
@@ -111,18 +115,18 @@ It provides:
 
 This project intentionally uses 9 AWS services to cover the full DVA-C02 certification knowledge domain. Each service was chosen for a specific architectural reason — not to inflate the service count.
 
-| Service | Role in ClientFlow | Why This Service (Not an Alternative) |
-|---------|-------------------|----------------------------------------|
-| **Cognito** | User auth, JWT token issuance, group-based RBAC | Handles the entire auth lifecycle — registration, email verification, login, token refresh, password reset — without custom auth code. Eliminates a class of security vulnerabilities. |
-| **API Gateway (HTTP API v2)** | REST endpoint layer, JWT authorization | HTTP API v2 costs 70% less than REST API v1 and adds ~1ms latency vs direct Lambda URLs. The native JWT Authorizer validates Cognito tokens on every request without invoking Lambda — keeping hot paths fast. |
-| **Lambda** | All business logic | Zero servers to manage, scales to zero (no idle cost), per-invocation billing. Each function has a single responsibility — easy to test, deploy, and reason about independently. |
-| **DynamoDB** | Primary datastore | Serverless, single-digit millisecond latency, scales automatically, native integration with Lambda. On-demand billing means the project costs ~$0/month at demo traffic. |
-| **S3** | File attachments + React SPA hosting | Pre-signed URLs let browsers upload directly to S3 — the file never passes through Lambda, staying within Lambda's 6MB payload limit and keeping function duration minimal. |
-| **CloudFront** | Global CDN, HTTPS, SPA routing | Origin Access Control (OAC) policy means the frontend S3 bucket is fully private — CloudFront is the only authorized reader. Custom 404→200 error response enables React Router client-side routing. |
-| **SES** | Transactional email | Managed email delivery with bounce/complaint handling built in. Starting in sandbox mode (legitimate for a demo) with a clear path to production access. |
-| **EventBridge** | Async event-driven notification pipeline | Decouples `updateStatus` Lambda from email delivery. Core logic succeeds regardless of SES availability. New notification channels (Slack, SMS) are added as EventBridge targets with zero changes to existing code. |
-| **IAM** | Least-privilege execution roles | Each Lambda has a scoped role: only the exact DynamoDB tables it reads/writes, only the S3 bucket it accesses, only the SES `SendEmail` action. No wildcard resource policies. |
-| **CloudWatch** | Observability | Lambda error alarms, duration metrics, Logs Insights queries for debugging, billing alarm to prevent cost surprises. |
+| Service                       | Role in ClientFlow                              | Why This Service (Not an Alternative)                                                                                                                                                                                |
+| ----------------------------- | ----------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Cognito**                   | User auth, JWT token issuance, group-based RBAC | Handles the entire auth lifecycle — registration, email verification, login, token refresh, password reset — without custom auth code. Eliminates a class of security vulnerabilities.                               |
+| **API Gateway (HTTP API v2)** | REST endpoint layer, JWT authorization          | HTTP API v2 costs 70% less than REST API v1 and adds ~1ms latency vs direct Lambda URLs. The native JWT Authorizer validates Cognito tokens on every request without invoking Lambda — keeping hot paths fast.       |
+| **Lambda**                    | All business logic                              | Zero servers to manage, scales to zero (no idle cost), per-invocation billing. Each function has a single responsibility — easy to test, deploy, and reason about independently.                                     |
+| **DynamoDB**                  | Primary datastore                               | Serverless, single-digit millisecond latency, scales automatically, native integration with Lambda. On-demand billing means the project costs ~$0/month at demo traffic.                                             |
+| **S3**                        | File attachments + React SPA hosting            | Pre-signed URLs let browsers upload directly to S3 — the file never passes through Lambda, staying within Lambda's 6MB payload limit and keeping function duration minimal.                                          |
+| **CloudFront**                | Global CDN, HTTPS, SPA routing                  | Origin Access Control (OAC) policy means the frontend S3 bucket is fully private — CloudFront is the only authorized reader. Custom 404→200 error response enables React Router client-side routing.                 |
+| **SES**                       | Transactional email                             | Managed email delivery with bounce/complaint handling built in. Starting in sandbox mode (legitimate for a demo) with a clear path to production access.                                                             |
+| **EventBridge**               | Async event-driven notification pipeline        | Decouples `updateStatus` Lambda from email delivery. Core logic succeeds regardless of SES availability. New notification channels (Slack, SMS) are added as EventBridge targets with zero changes to existing code. |
+| **IAM**                       | Least-privilege execution roles                 | Each Lambda has a scoped role: only the exact DynamoDB tables it reads/writes, only the S3 bucket it accesses, only the SES `SendEmail` action. No wildcard resource policies.                                       |
+| **CloudWatch**                | Observability                                   | Lambda error alarms, duration metrics, Logs Insights queries for debugging, billing alarm to prevent cost surprises.                                                                                                 |
 
 ---
 
@@ -130,15 +134,15 @@ This project intentionally uses 9 AWS services to cover the full DVA-C02 certifi
 
 ### Tech Stack Rationale
 
-| Tool | Why It Was Chosen |
-|------|------------------|
-| **React 18** | Industry standard for component-based UIs. Demonstrates hooks, custom hooks, context, concurrent features, and component composition — all visible in this codebase. |
-| **TypeScript** | Static typing eliminates runtime errors from mismatched API response shapes. Every API response, form value, and component prop is typed. The same Zod schemas validate both frontend forms and Lambda inputs. |
-| **TailwindCSS** | Utility-first styling eliminates CSS specificity conflicts. Custom design tokens in `tailwind.config.ts` enforce a consistent design system. All styling decisions are visible inline — no hidden global CSS. |
-| **TanStack Query** | Server state management with caching, background refetch, optimistic updates, and loading/error states. Replaces ad-hoc `useEffect` data fetching with a purpose-built, production-proven pattern. |
-| **React Hook Form + Zod** | Schema-driven form validation. The Zod schema is the single source of truth for validation rules — shared between the frontend form and the Lambda handler. |
-| **AWS Amplify (Auth only)** | Handles Cognito SRP auth flow, token storage, and silent refresh. Using only the `Auth` category keeps the bundle lean. |
-| **Vite** | ESM-native build tool with HMR. Content-hashed output filenames enable long-term CloudFront caching with instant cache invalidation on deploy. |
+| Tool                        | Why It Was Chosen                                                                                                                                                                                              |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **React 18**                | Industry standard for component-based UIs. Demonstrates hooks, custom hooks, context, concurrent features, and component composition — all visible in this codebase.                                           |
+| **TypeScript**              | Static typing eliminates runtime errors from mismatched API response shapes. Every API response, form value, and component prop is typed. The same Zod schemas validate both frontend forms and Lambda inputs. |
+| **TailwindCSS**             | Utility-first styling eliminates CSS specificity conflicts. Custom design tokens in `tailwind.config.ts` enforce a consistent design system. All styling decisions are visible inline — no hidden global CSS.  |
+| **TanStack Query**          | Server state management with caching, background refetch, optimistic updates, and loading/error states. Replaces ad-hoc `useEffect` data fetching with a purpose-built, production-proven pattern.             |
+| **React Hook Form + Zod**   | Schema-driven form validation. The Zod schema is the single source of truth for validation rules — shared between the frontend form and the Lambda handler.                                                    |
+| **AWS Amplify (Auth only)** | Handles Cognito SRP auth flow, token storage, and silent refresh. Using only the `Auth` category keeps the bundle lean.                                                                                        |
+| **Vite**                    | ESM-native build tool with HMR. Content-hashed output filenames enable long-term CloudFront caching with instant cache invalidation on deploy.                                                                 |
 
 ### Folder Structure (Feature-First)
 
@@ -249,14 +253,14 @@ Direct S3 public URLs expose your bucket to hotlinking, bypass CloudFront's HTTP
 
 ## DVA-C02 Knowledge Domain Coverage
 
-| Domain | How It's Demonstrated in This Project |
-|--------|---------------------------------------|
-| **Security** | IAM least-privilege roles scoped per function, Cognito SRP auth, JWT authorizer, S3 block public access, pre-signed URL access control |
-| **Development** | AWS SDK v3 modular imports (tree-shaking for cold start optimization), DynamoDB DocumentClient marshalling, S3 pre-signed URL generation, SES `SendEmailCommand` |
-| **Deployment** | S3 + CloudFront SPA deployment, GitHub Actions CI/CD, Lambda versioning, API Gateway stages, CloudFront cache invalidation strategy |
-| **Troubleshooting** | CloudWatch Logs Insights queries, Lambda error rate alarms, duration metrics, cold start analysis via `@initDuration` metric |
-| **Refactoring to Serverless** | Entire backend is serverless — no EC2, no always-on servers, auto-scaling compute, pay-per-request DynamoDB, event-driven side effects |
-| **Event-Driven Architecture** | EventBridge rule/target pattern, PutEvents from Lambda, decoupled notification delivery, at-least-once delivery semantics |
+| Domain                        | How It's Demonstrated in This Project                                                                                                                            |
+| ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Security**                  | IAM least-privilege roles scoped per function, Cognito SRP auth, JWT authorizer, S3 block public access, pre-signed URL access control                           |
+| **Development**               | AWS SDK v3 modular imports (tree-shaking for cold start optimization), DynamoDB DocumentClient marshalling, S3 pre-signed URL generation, SES `SendEmailCommand` |
+| **Deployment**                | S3 + CloudFront SPA deployment, GitHub Actions CI/CD, Lambda versioning, API Gateway stages, CloudFront cache invalidation strategy                              |
+| **Troubleshooting**           | CloudWatch Logs Insights queries, Lambda error rate alarms, duration metrics, cold start analysis via `@initDuration` metric                                     |
+| **Refactoring to Serverless** | Entire backend is serverless — no EC2, no always-on servers, auto-scaling compute, pay-per-request DynamoDB, event-driven side effects                           |
+| **Event-Driven Architecture** | EventBridge rule/target pattern, PutEvents from Lambda, decoupled notification delivery, at-least-once delivery semantics                                        |
 
 ---
 
@@ -319,16 +323,16 @@ Full infrastructure setup is documented in the [Walkthrough Guide](docs/ClientFl
 
 This application is designed to run live indefinitely at near-zero cost — a deliberate architectural choice for portfolio projects.
 
-| Service | Free Tier | Cost at Demo Traffic |
-|---------|-----------|---------------------|
-| Lambda | 1M req/mo free forever | ~$0.00 |
-| API Gateway HTTP API | 1M calls/mo (12 mo) | ~$1.00/mo after |
-| DynamoDB | 25GB + WCU/RCU free forever | $0.00 |
-| S3 | 5GB + requests (12 mo) | <$0.10/mo |
-| CloudFront | 1TB + 10M requests (12 mo) | $0.00 |
-| Cognito | 50,000 MAUs free forever | $0.00 |
-| SES | 62,000 emails/mo free (from Lambda) | $0.00 |
-| **Total** | | **$0–$2/month** |
+| Service              | Free Tier                           | Cost at Demo Traffic |
+| -------------------- | ----------------------------------- | -------------------- |
+| Lambda               | 1M req/mo free forever              | ~$0.00               |
+| API Gateway HTTP API | 1M calls/mo (12 mo)                 | ~$1.00/mo after      |
+| DynamoDB             | 25GB + WCU/RCU free forever         | $0.00                |
+| S3                   | 5GB + requests (12 mo)              | <$0.10/mo            |
+| CloudFront           | 1TB + 10M requests (12 mo)          | $0.00                |
+| Cognito              | 50,000 MAUs free forever            | $0.00                |
+| SES                  | 62,000 emails/mo free (from Lambda) | $0.00                |
+| **Total**            |                                     | **$0–$2/month**      |
 
 Serverless + on-demand pricing means you pay for actual usage. A demo project with typical recruiter traffic costs less than a cup of coffee per month.
 
@@ -343,6 +347,7 @@ Full-stack AWS + React developer. Shipped a real product — not a tutorial clon
 Understands the full product lifecycle: design → infrastructure → backend → frontend → deployment → observability. Makes deliberate architectural choices and can explain the trade-offs.
 
 **To an engineer (5-minute code review):**
+
 - TypeScript throughout — no `any` shortcuts
 - Shared Zod schemas between frontend and Lambda (schema-driven design)
 - IAM least-privilege — every policy scoped to exact resources

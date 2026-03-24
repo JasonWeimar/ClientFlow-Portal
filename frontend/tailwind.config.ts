@@ -1,33 +1,50 @@
 import type { Config } from "tailwindcss"
 
-
-/** @type {import('tailwindcss').Config} */
 export default {
-  // content: paths to all files that use Tailwind classes.
-  // Tailwind scans these at build time and tree-shakes unsused classes,
-  // resulting in a minimal CSS output file.
   content: [
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
-      // Custom color palette - uses these tokens through the app
-      // instead of hardcoded hex values (consistency).
       colors: {
         brand: {
-          50: '#eff6ff',
-          100: '#dbeafe',
-          500: '#3b82f6',
-          600: '#2563eb',
-          700: '#1d4ed8',
-          900: '#1e3a8a',
+          50:  '#EFF6FF',
+          100: '#DBEAFE',
+          500: '#3B82F6',
+          600: '#2563EB',
+          700: '#1D4ED8',
+          900: '#0F172A',
         },
-        surface: '#f8fafc',
-        muted: '#64748b',
+
+        surface: '#F8FAFC',
+        muted:   '#64748B',
+
+        status: {
+          // Primary colors
+          pending:   '#D97706',
+          review:    '#7C3AED',
+          approved:  '#16A34A',
+          completed: '#0D9488',
+          rejected:  '#DC2626',
+
+          // Light background variants
+          'pending-bg':   '#FFFBEB',
+          'review-bg':    '#F0E7FF',
+          'approved-bg':  '#DCFCE7',
+          'completed-bg': '#CCFBF1',
+          'rejected-bg':  '#FEE2E2',
+        },
+
+        neutral: {
+          50:  '#F9FAFB',
+          200: '#E5E7EB',
+          700: '#374151',
+          900: '#111827',
+        },
       },
+
       fontFamily: {
-        // font stack used across the entire app
         sans: ['Inter', 'system-ui', 'sans-serif'],
         mono: ['JetBrains Mono', 'Courier New', 'monospace'],
       },
@@ -35,4 +52,3 @@ export default {
   },
   plugins: [],
 } satisfies Config
-
