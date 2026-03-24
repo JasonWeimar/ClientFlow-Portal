@@ -251,7 +251,7 @@ Every transition is recorded as an immutable `StatusEvent` — providing a compl
 
 ---
 
-## Key Engineering Decisions (Interview-Ready)
+## Key Engineering Decisions
 
 **HTTP API v2 over REST API v1**
 HTTP API v2 is 71% cheaper ($1.00/M vs $3.50/M), has lower latency, and natively supports JWT authorizers. REST API v1 only makes sense when you need request/response transformations, usage plans, or API keys — none of which this application requires at current scope.
@@ -396,7 +396,7 @@ Understands the full product lifecycle: Figma design → AWS infrastructure → 
 
 ## About
 
-Built as the flagship project in a hire-me portfolio demonstrating AWS cloud development and modern React engineering.
+Built as the flagship project in my portfolio demonstrating AWS cloud development and modern React engineering.
 
 **Certifications:** AWS Certified Developer – Associate (DVA-C02) · AWS Cloud Practitioner (CLF-C02)
 
@@ -408,7 +408,7 @@ Built as the flagship project in a hire-me portfolio demonstrating AWS cloud dev
 
 <div align="center">
 
-**[Live Demo](COMING SOON🚧)** · **[💼 Portfolio](https://jasonweimarstack1.com)** · **[LinkedIn](https://linkedin.com/in/https://www.linkedin.com/in/jason-weimar-3b6592228/)**
+**Live Demo COMING SOON🚧** · **Portfolio - (https://jasonweimarstack1.com)** · **LinkedIn - (https://linkedin.com/in/https://www.linkedin.com/in/jason-weimar-3b6592228/)**
 
 _Designed in Figma · Built with React + TypeScript · Deployed on AWS_
 
