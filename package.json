@@ -1,5 +1,13 @@
 {
-  "dependencies": {
-    "@heroicons/react": "^2.2.0"
+  "name": "clientflow-portal",
+  "version": "0.0.0",
+  "private": true,
+  "scripts": {
+    "check": "aws sts get-caller-identity && aws configure get region",
+    "build": "cd frontend && npm run build",
+    "predeploy:frontend": "aws sts get-caller-identity",
+    "deploy:frontend": "cd frontend && npm run build && aws s3 sync dist/ s3://$FRONTEND_BUCKET --delete",
+    "invalidate": "aws cloudfront create-invalidation --distribution-id $CLOUDFRONT_ID --paths '/*'",
+    "deploy:full": "npm run deploy:frontend && npm run invalidate"
   }
 }
