@@ -1,44 +1,88 @@
 {
-  // Visit https://aka.ms/tsconfig to read more about this file
   "compilerOptions": {
-    // File Layout
-    // "rootDir": "./src",
-    // "outDir": "./dist",
+    // Lambda Node.js 20 supports ES2020 natively — optional chaining,
+    // nullish coalescing, Promise.allSettled. No down-leveling needed.
+    "target": "ES2020",
 
-    // Environment Settings
-    // See also https://aka.ms/tsconfig/module
+    // Lambda's Node.js runtime uses CommonJS (require/module.exports).
+    // Compiles ESM import/export syntax → require() calls in dist/.
+    // Do NOT use "ESNext" here — Lambda can't load ESM without
+    // "type": "module" in package.json, which breaks the zip deploy strategy.
     "module": "commonjs",
-    "target": "es2020",
-    "types": [],
-    // For nodejs:
-    // "lib": ["esnext"],
-    // "types": ["node"],
-    // and npm install -D @types/node
 
-    // Other Outputs
-    "sourceMap": true,
-    "declaration": true,
-    "declarationMap": true,
+    // Matches how Node.js resolves modules at runtime — walks up
+    // node_modules, respects package.json "main" field.
+    // Required for AWS SDK v3's package structure to resolve correctly.
+    "moduleResolution": "node",
 
-    // Stricter Typechecking Options
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true,
+    // Tells TypeScript which built-in JS APIs are available.
+    // ES2020 covers Promise, Map, Set, optional chaining, etc.
+    // No "DOM" entry here — Lambda has no browser APIs.
+    "lib": ["ES2020"],
 
-    // Style Options
-    // "noImplicitReturns": true,
-    // "noImplicitOverride": true,
-    // "noUnusedLocals": true,
-    // "noUnusedParameters": true,
-    // "noFallthroughCasesInSwitch": true,
-    // "noPropertyAccessFromIndexSignature": true,
+    // Explicitly includes @types/node, which provides process.env,
+    // __dirname, __filename, Buffer, setTimeout, etc.
+    // The root tsconfig had "types": [] (empty), which blocked this
+    // entirely — root cause of all the TS2591 "Cannot find name process" errors.
+    "types": ["node"],
 
-    // Recommended Options
+    // tsc compiles src/ → dist/, preserving directory structure.
+    // Step 10 zip packaging pulls from dist/, not src/.
+    "outDir": "./dist",
+    "rootDir": "./src",
+
+    // Enables the full strict family: strictNullChecks, noImplicitAny,
+    // strictFunctionTypes, strictBindCallApply, etc.
     "strict": true,
-    "jsx": "react-jsx",
-    "verbatimModuleSyntax": true,
-    "isolatedModules": true,
-    "noUncheckedSideEffectImports": true,
-    "moduleDetection": "force",
+
+    // Allows: import uuid from 'uuid' instead of import * as uuid from 'uuid'
+    // Required for CommonJS modules that use module.exports = syntax.
+    "esModuleInterop": true,
+
+    // Skips type-checking inside node_modules/.
+    // AWS SDK v3 ships its own types — no need to re-validate them here.
     "skipLibCheck": true,
-  }
+
+    // Catches import casing bugs between macOS (case-insensitive fs)
+    // and the Lambda Linux runtime (case-sensitive fs). Example:
+    // import foo from './Dynamo' vs './dynamo' — Linux fails at runtime
+    // even if macOS builds fine. This catches it at compile time.
+    "forceConsistentCasingInFileNames": true,
+
+    // Allows: import config from './config.json'
+    // Not required now but useful if config files are added later.
+    "resolveJsonModule": true,
+
+    // Generates .js.map files alongside compiled output so CloudWatch
+    // stack traces show original TypeScript line numbers instead of
+    // compiled JS lines — makes debugging Lambda errors significantly faster.
+    "sourceMap": true,
+
+    // Lambda functions are never imported as a library so .d.ts files
+    // serve no purpose. Omitting them keeps dist/ clean and speeds up builds.
+    "declaration": false
+
+    // ── Intentionally omitted ────────────────────────────────────────────
+    // "verbatimModuleSyntax": true — requires ESM imports to pass through
+    //   untransformed, which contradicts "module": "commonjs". This was the
+    //   root cause of every TS1295 and TS1287 error in your error list.
+    //
+    // "isolatedModules": true — designed for bundlers (esbuild, Babel) that
+    //   compile files one at a time without full type info. Not applicable
+    //   when tsc compiles the whole project together.
+    //
+    // "noUncheckedIndexedAccess": true — DynamoDB result objects use index
+    //   access heavily; this would require null-guarding every attribute read.
+    //
+    // "exactOptionalPropertyTypes": true — adds friction when mapping
+    //   DynamoDB items to interfaces. Both can be revisited post-launch.
+  },
+
+  // Only compiles files under src/ — all handlers, lib, and types live here.
+  "include": ["src/**/*"],
+
+  // node_modules: never compile dependencies.
+  // dist: prevents tsc from re-compiling its own output on the next run,
+  // which would cause duplicate identifier errors.
+  "exclude": ["node_modules", "dist"]
 }
