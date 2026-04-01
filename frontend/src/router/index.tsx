@@ -6,112 +6,137 @@
 // AdminLayout wraps only admin routes (redirects to /dashboard if not admin)
 
 import { createBrowserRouter } from "react-router-dom";
-import { lazy, Suspense } from "react";
-
-// lazy() enables code splitting — each page is a separate JS chunk.
-// The browser only downloads the code for the page it is currently on.
-// This significantly reduces initial bundle size and load time.
-const HomePage = lazy(() => import("../features/marketing/HomePage"));
-const LoginPage = lazy(() => import("../features/auth/LoginPage"));
-const SignUpPage = lazy(() => import("../features/auth/SignUpPage"));
-const DashboardPage = lazy(() => import("../features/client/DashboardPage"));
-const SubmitPage = lazy(() => import("../features/requests/SubmitRequestPage"));
-const RequestDetail = lazy(
-  () => import("../features/client/RequestDetailPage"),
-);
-const AdminDashboard = lazy(
-  () => import("../features/admin/AdminDashboardPage"),
-);
-const AdminDetail = lazy(() => import("../features/admin/AdminRequestDetail"));
-
+import { lazy } from "react";
 import { RootLayout } from "../components/layout/RootLayout";
 import { ProtectedRoute } from "./ProtectedRoute";
 import { AdminRoute } from "./AdminRoute";
-import { LoadingSpinner } from "../components/ui/LoadingSpinner";
+import { S } from "./SuspenseWrapper";
+
+// lazy() enables code splitting — each page is a separate JS bundle.
+// lazy() takes a function that returns a dynamic import().
+// The browser only downloads the code for the page it is currently on.
+// This significantly reduces initial bundle size and load time.
+// const HomePage = lazy(() => import("../features/marketing/HomePage")); --- //TODO- Build Homepage.tsx
+const LoginPage = lazy(() => import("../features/auth/LoginPage"));
+const SignUpPage = lazy(() => import("../features/auth/SignUpPage"));
+const ConfirmEmailPage = lazy(
+  () => import("../features/auth/ConfirmEmailPage"),
+);
+const DashboardPage = lazy(() => import("../features/client/DashboardPage"));
+const RequestDetailPage = lazy(
+  () => import("../features/client/RequestDetailPage"),
+);
+const AdminDashboardPage = lazy(
+  () => import("../features/admin/AdminDashboardPage"),
+);
+const AdminRequestDetail = lazy(
+  () => import("../features/admin/AdminRequestDetail"),
+);
+const SubmitRequestPage = lazy(
+  () => import("../features/requests/SubmitRequestPage"),
+);
 
 export const router = createBrowserRouter([
   {
     path: "/",
-    element: <RootLayout />, // Provides shared Navbar + Footer
+    element: <RootLayout />,
     children: [
+      // ── Public routes — no authentication required ─────
       {
         index: true,
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
-            <HomePage />
-          </Suspense>
+          <S>
+            <LoginPage />
+          </S>
         ),
-      },
+      }, // / → Login (or your HomePage)
       {
         path: "login",
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
+          <S>
             <LoginPage />
-          </Suspense>
+          </S>
         ),
       },
       {
         path: "signup",
         element: (
-          <Suspense fallback={<LoadingSpinner />}>
+          <S>
             <SignUpPage />
-          </Suspense>
+          </S>
+        ),
+      },
+      {
+        path: "confirm-email",
+        element: (
+          <S>
+            <ConfirmEmailPage />
+          </S>
         ),
       },
 
-      // Authenticated routes — ProtectedRoute checks useAuth() and redirects to /login if no user
+      // ── Protected client routes — must be authenticated ──────
+      // ProtectedRoute checks useAuth().isAuthenticated.
+      // If false, it redirects to /login while saving the intended URL in state.
       {
         element: <ProtectedRoute />,
         children: [
           {
             path: "dashboard",
             element: (
-              <Suspense fallback={<LoadingSpinner />}>
+              <S>
                 <DashboardPage />
-              </Suspense>
+              </S>
             ),
           },
           {
             path: "requests/new",
             element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <SubmitPage />
-              </Suspense>
+              <S>
+                <SubmitRequestPage />
+              </S>
             ),
           },
           {
             path: "requests/:requestId",
             element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <RequestDetail />
-              </Suspense>
+              <S>
+                <RequestDetailPage />
+              </S>
             ),
           },
-        ],
-      },
 
-      // Admin-only routes — AdminRoute checks isAdmin and redirects to /dashboard if not admin
-      {
-        element: <AdminRoute />,
-        children: [
+          // ── Protected admin routes — must be authenticated AND in admin group ─
+          // AdminRoute checks useAuth().isAdmin (or the admin Cognito group claim).
+          // AdminRoute is nested inside ProtectedRoute — both guards run.
           {
-            path: "admin",
-            element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <AdminDashboard />
-              </Suspense>
-            ),
-          },
-          {
-            path: "admin/requests/:requestId",
-            element: (
-              <Suspense fallback={<LoadingSpinner />}>
-                <AdminDetail />
-              </Suspense>
-            ),
+            element: <AdminRoute />,
+            children: [
+              {
+                path: "admin",
+                element: (
+                  <S>
+                    <AdminDashboardPage />
+                  </S>
+                ),
+              },
+              {
+                path: "admin/requests/:requestId",
+                element: (
+                  <S>
+                    <AdminRequestDetail />
+                  </S>
+                ),
+              },
+            ],
           },
         ],
       },
     ],
   },
 ]);
+
+// In main.tsx, use:
+// import { router } from './router'
+// import { RouterProvider } from 'react-router-dom'
+// <RouterProvider router={router} />

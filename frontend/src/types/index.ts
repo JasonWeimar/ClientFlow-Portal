@@ -9,8 +9,9 @@ export type RequestStatus =
 export type ServiceType = "consulting" | "design" | "development" | "support";
 
 export interface Request {
-  id: string;
+  requestId: string;
   clientId: string;
+  clientEmail: string;
   serviceType: ServiceType;
   description: string;
   status: RequestStatus;
