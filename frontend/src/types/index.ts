@@ -22,8 +22,8 @@ export interface Request {
 
 export interface StatusEvent {
   requestId: string;
-  timestamp: string;
-  status: RequestStatus;
+  createdAt: string;
+  newStatus: RequestStatus;
   note?: string;
   adminOnly?: boolean;
 }

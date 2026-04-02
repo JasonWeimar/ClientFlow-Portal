@@ -13,7 +13,7 @@ export function RequestCard({ request }: RequestCardProps) {
 
   return (
     <button
-      onClick={() => navigate(`/requests/${request.id}`)}
+      onClick={() => navigate(`/requests/${request.requestId}`)}
       className={[
         "w-full flex items-center justify-between",
         "bg-white rounded-lg border border-slate-200 shadow-sm",

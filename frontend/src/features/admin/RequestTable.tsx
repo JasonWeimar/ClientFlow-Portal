@@ -40,8 +40,8 @@ export function RequestTable({ requests }: RequestTableProps) {
         <tbody>
           {requests.map((request) => (
             <tr
-              key={request.id}
-              onClick={() => navigate(`/admin/requests/${request.id}`)}
+              key={request.requestId}
+              onClick={() => navigate(`/admin/requests/${request.requestId}`)}
               className="border-b border-slate-100 hover:bg-slate-50 cursor-pointer transition-colors duration-150"
             >
               <td className="px-4 py-4 font-medium text-slate-900 whitespace-nowrap">

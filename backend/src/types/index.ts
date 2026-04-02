@@ -22,7 +22,7 @@ export interface ServiceRequest {
   // Full description of the work requested.
   description: string;
   // ISO date string (YYYY-MM-DD) of the client's preferred start date.
-  preferredDate: string;
+  preferredDate?: string;
   // Current lifecycle state — updated by admin via updateStatus Lambda.
   status: RequestStatus;
   // S3 object key of the uploaded file, or null if no file was attached.

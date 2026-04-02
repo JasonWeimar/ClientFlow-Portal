@@ -14,11 +14,6 @@ export const RequestFormSchema = z.object({
     .min(10, "Description must be at least 10 characters")
     .max(2000, "Description cannot exceed 2000 characters"),
 
-  preferredDate: z
-    .string()
-    .regex(/^\d{4}-\d{2}-\d{2}$/, "Please select a valid date")
-    .refine((d) => new Date(d) > new Date(), "Date must be in the future"),
-
   // attachment is optional — it holds the S3 object key AFTER upload,
   // not the File object itself. The actual upload happens as a side effect
   // triggered by the file input onChange handler.

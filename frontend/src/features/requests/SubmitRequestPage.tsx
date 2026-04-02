@@ -24,7 +24,6 @@ export default function SubmitRequestPage() {
     defaultValues: {
       serviceType: "",
       description: "",
-      preferredDate: "",
       attachmentKey: null,
     },
   });
@@ -79,10 +78,10 @@ export default function SubmitRequestPage() {
                              focus:outline-none focus:ring-2 focus:ring-brand-500"
           >
             <option value="">Select a service...</option>
-            <option value="Consulting">Consulting</option>
-            <option value="Design">Design</option>
-            <option value="Development">Development</option>
-            <option value="Support">Support</option>
+            <option value="consulting">Consulting</option>
+            <option value="design">Design</option>
+            <option value="development">Development</option>
+            <option value="support">Support</option>
           </select>
           {errors.serviceType && (
             <p className="text-red-600 text-xs mt-1">

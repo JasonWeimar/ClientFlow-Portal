@@ -2,11 +2,12 @@
 // The backend filters by clientId automatically based on the JWT.
 
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { getRequests } from "../../api/requests";
 import { RequestCard } from "./RequestCard";
 import { PageWrapper } from "../../components/layout/PageWrapper";
+import { signOut } from "aws-amplify/auth";
 import { Button } from "../../components/ui/Button";
 import { EmptyState } from "../../components/ui/EmptyState";
 import { LoadingSpinner } from "../../components/ui/LoadingSpinner";
@@ -14,6 +15,14 @@ import type { Request } from "../../types";
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const navigate = useNavigate();
+
+  // Signs out via Amplify and redirects to login.
+  // signOut() clears the Cognito session and removes tokens from storage.
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   // useQuery manages the full data-fetching lifecycle.
   // queryKey: ['requests'] — this is the cache key.
@@ -36,9 +45,14 @@ export default function DashboardPage() {
     <PageWrapper
       title={`Welcome back, ${user?.email ?? "there"}`}
       action={
-        <Button as={Link} to="/requests/new">
-          New request
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button variant="ghost" onClick={handleLogout}>
+            Log out
+          </Button>
+          <Button as={Link} to="/requests/new">
+            New request
+          </Button>
+        </div>
       }
     >
       {/* Loading state — spinner while the first fetch is in-flight */}

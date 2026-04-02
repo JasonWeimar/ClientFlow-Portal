@@ -20,8 +20,10 @@ const Schema = z.object({
   // Min 10 ensures the client provided a meaningful description.
   description: z.string().min(10).max(2000),
   // Regex enforces ISO date format — DynamoDB stores as string, not Date.
-  preferredDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-  // Nullable and optional — only present if the client uploaded a file first.
+  preferredDate: z
+    .string()
+    .regex(/^\d{4}-\d{2}-\d{2}$/)
+    .optional(),
   // The S3 object key is passed in after getPresignedUrl completes the upload.
   attachmentKey: z.string().nullable().optional(),
 });
