@@ -23,7 +23,10 @@ export const handler = async (
     // Cognito injects groups as a space-separated string in HTTP API JWT authorizer,
     // not an array — split it to check membership safely.
     const rawGroups = (claims?.["cognito:groups"] as string) ?? "";
-    const groups = rawGroups.split(" ").filter(Boolean);
+    const groups = rawGroups
+      .replace(/^\[|\]$/g, "") // strip leading [ and trailing ]
+      .split(" ")
+      .filter(Boolean);
     const isAdmin = groups.includes("admin");
 
     if (isAdmin) {

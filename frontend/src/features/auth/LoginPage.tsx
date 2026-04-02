@@ -19,7 +19,7 @@ const LoginSchema = z.object({
 type LoginValues = z.infer<typeof LoginSchema>;
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -48,12 +48,14 @@ export default function LoginPage() {
       // login() calls Amplify Auth.signIn(email, password) internally.
       // On success, Amplify stores the JWT tokens in memory/localStorage.
       await login(data.email, data.password);
-
-      // replace: true removes /login from the browser history stack.
-      navigate(from, { replace: true });
+      // If redirected from a protected route, honour that destination.
+      // Otherwise send admins to /admin and clients to /dashboard.
+      if (from !== "/dashboard") {
+        navigate(from, { replace: true });
+      } else {
+        navigate(user?.isAdmin ? "/admin" : "/dashboard", { replace: true });
+      }
     } catch (e: unknown) {
-      // Cognito errors include: NotAuthorizedException, UserNotFoundException, etc.
-      // Surfaced as a form-level (root) error — not a field-level error.
       const message = e instanceof Error ? e.message : "Login failed";
       setError("root", { message });
     }

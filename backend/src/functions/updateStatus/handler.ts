@@ -46,7 +46,10 @@ export const handler = async (
 
     // Reject non-admin callers before touching the database.
     const rawGroups = (claims?.["cognito:groups"] as string) ?? "";
-    const groups = rawGroups.split(" ").filter(Boolean);
+    const groups = rawGroups
+      .replace(/^\[|\]$/g, "")
+      .split(" ")
+      .filter(Boolean);
     if (!groups.includes("admin")) return forbidden();
 
     // requestId comes from the path parameter: PATCH /requests/{requestId}/status

@@ -21,7 +21,10 @@ import type { ServiceRequest, StatusEvent } from "../../types";
 
 function isAdmin(claims: Record<string, unknown>): boolean {
   const groups = (claims["cognito:groups"] as string | undefined) ?? "";
-  return groups.split(" ").includes("admin");
+  return groups
+    .replace(/^\[|\]$/g, "")
+    .split(" ")
+    .includes("admin");
 }
 
 const notFound = (msg = "Not found"): APIGatewayProxyResult => ({

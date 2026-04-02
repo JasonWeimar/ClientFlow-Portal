@@ -19,7 +19,10 @@ import type { ServiceRequest } from "../../types";
 // space-separated string, NOT an array — split before checking.
 function isAdmin(claims: Record<string, unknown>): boolean {
   const groups = (claims["cognito:groups"] as string | undefined) ?? "";
-  return groups.split(" ").includes("admin");
+  return groups
+    .replace(/^\[|\]$/g, "") // strip brackets
+    .split(" ")
+    .includes("admin");
 }
 
 // Inline 404 helper — not in the shared response lib yet.
