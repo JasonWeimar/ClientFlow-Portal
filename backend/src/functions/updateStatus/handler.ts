@@ -3,7 +3,7 @@
 // to cf-status-events, and publishes a StatusChanged event to
 // EventBridge for the sendNotification Lambda to consume (Part F).
 import type { APIGatewayProxyEvent, APIGatewayProxyResult } from "aws-lambda";
-import { UpdateCommand, PutCommand, GetCommand } from "@aws-sdk/lib-dynamodb";
+import { UpdateCommand, PutCommand, QueryCommand } from "@aws-sdk/lib-dynamodb";
 import {
   EventBridgeClient,
   PutEventsCommand,
@@ -64,25 +64,26 @@ export const handler = async (
     // Confirm the request exists before updating — avoids creating
     // orphaned status events for non-existent requests.
     // GetCommand requires both PK and SK for cf-requests.
-    // We do a Scan here since we only have requestId (not clientId).
+    // We do a Query here since we only have requestId (not clientId).
     const existing = await docClient.send(
-      new GetCommand({
+      new QueryCommand({
         TableName: REQUESTS_TABLE,
-        // cf-requests PK is requestId — clientId is the sort key.
-        // GetCommand needs both; use UpdateCommand with condition instead.
-        Key: { requestId },
+        KeyConditionExpression: "requestId = :rid",
+        ExpressionAttributeValues: { ":rid": requestId },
+        Limit: 1,
       }),
     );
-    if (!existing.Item) return notFound("Request not found");
-
-    const previousStatus = existing.Item["status"] as RequestStatus;
+    const existingItem = existing.Items?.[0];
+    if (!existingItem) return notFound("Request not found");
+    const clientId = existingItem["clientId"] as string;
+    const previousStatus = existingItem["status"] as RequestStatus;
     const now = new Date().toISOString();
 
     // Update the request record with the new status and updatedAt timestamp.
     await docClient.send(
       new UpdateCommand({
         TableName: REQUESTS_TABLE,
-        Key: { requestId },
+        Key: { requestId, clientId },
         UpdateExpression: "SET #s = :status, updatedAt = :now",
         // #s is an expression alias — "status" is a DynamoDB reserved word.
         ExpressionAttributeNames: { "#s": "status" },
@@ -117,7 +118,7 @@ export const handler = async (
             DetailType: "StatusChanged",
             Detail: JSON.stringify({
               requestId,
-              clientEmail: existing.Item["clientEmail"],
+              clientEmail: existingItem["clientEmail"],
               previousStatus,
               newStatus: status,
               note,
