@@ -74,14 +74,49 @@ export function useAuth() {
     loadUser();
   }, [loadUser]);
 
-  const login = async (email: string, password: string) => {
+  const login = async (
+    email: string,
+    password: string,
+  ): Promise<AuthUser | null> => {
+    // Clear any previous auth errors before attempting sign-in.
     setError(null);
     try {
+      // signIn() exchanges email + password with Cognito.
+      // If credentials are wrong, Cognito throws NotAuthorizedException here.
       await signIn({ username: email, password });
+
+      // loadUser() fetches the fresh session and calls setUser() internally.
+      // This updates the user state in the hook for all future renders.
       await loadUser();
+
+      // BUT — setUser() is asynchronous (React state), so the user variable
+      // in this closure is still null at this point. We can't return user here.
+      // Instead, we rebuild the user object directly from the fresh session
+      // so we can return it immediately to the caller (LoginPage).
+      const session = await fetchAuthSession({ forceRefresh: false });
+      const idToken = session.tokens?.idToken;
+
+      // If for some reason the session has no token after sign-in, return null.
+      // LoginPage will fall back to /dashboard in this case.
+      if (!idToken) return null;
+
+      const payload = idToken.payload;
+      const groups = (payload["cognito:groups"] as string[] | undefined) ?? [];
+
+      // Build and return the user object so LoginPage can use it immediately
+      // for routing — without waiting for a React re-render to see updated state.
+      const freshUser: AuthUser = {
+        userId: payload["sub"] as string,
+        email: payload["email"] as string,
+        isAdmin: groups.includes("admin"),
+        idToken: idToken.toString(),
+      };
+
+      return freshUser;
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : "Sign in failed";
       setError(message);
+      // Re-throw so LoginPage's try/catch can catch it and call setError("root").
       throw e;
     }
   };

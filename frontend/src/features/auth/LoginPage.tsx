@@ -19,7 +19,7 @@ const LoginSchema = z.object({
 type LoginValues = z.infer<typeof LoginSchema>;
 
 export default function LoginPage() {
-  const { login, user } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -45,18 +45,41 @@ export default function LoginPage() {
 
   const onSubmit = async (data: LoginValues) => {
     try {
-      // login() calls Amplify Auth.signIn(email, password) internally.
-      // On success, Amplify stores the JWT tokens in memory/localStorage.
-      await login(data.email, data.password);
-      // If redirected from a protected route, honour that destination.
-      // Otherwise send admins to /admin and clients to /dashboard.
+      // login() now returns the user object directly after Amplify resolves.
+      // Is captured in loggedInUser instead of relying on the user variable
+      // from useAuth() — because React state updates (like setting user in the
+      // auth context) are asynchronous. By the time the next line runs, the
+      // user variable from useAuth() still holds the OLD value (null/undefined).
+      // loggedInUser gives us the freshly resolved value immediately.
+      const loggedInUser = await login(data.email, data.password);
+
+      // If the user was redirected here from a protected route (e.g. they tried
+      // to visit /dashboard while logged out), ProtectedRoute stored that
+      // original destination in location.state.from. Honor it and send them
+      // back there instead of making a routing decision.
+      // from defaults to "/dashboard" (set above), so this condition is only
+      // true when a real redirect happened — e.g. from === "/admin/requests/123"
       if (from !== "/dashboard") {
         navigate(from, { replace: true });
       } else {
-        navigate(user?.isAdmin ? "/admin" : "/dashboard", { replace: true });
+        // No prior redirect — make the routing decision based on role.
+        // loggedInUser is used here (not user from useAuth) because user is still
+        // stale at this point in the render cycle.
+        // replace: true replaces the /login entry in browser history so the
+        // user can't hit the back button and land on /login again after signing in.
+        navigate(loggedInUser?.isAdmin ? "/admin" : "/dashboard", {
+          replace: true,
+        });
       }
     } catch (e: unknown) {
+      // Amplify throws Error objects on bad credentials, network failures, etc.
+      // We narrow the type with instanceof before reading .message — TypeScript
+      // types caught values as unknown (not Error) so we can't assume .message exists.
       const message = e instanceof Error ? e.message : "Login failed";
+
+      // setError("root") attaches an error to the form that isn't tied to any
+      // specific field — used for server-side/API errors like wrong password.
+      // This surfaces as errors.root in the JSX below the form fields.
       setError("root", { message });
     }
   };
