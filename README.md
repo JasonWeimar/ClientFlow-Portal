@@ -10,7 +10,7 @@
 [![TailwindCSS](https://img.shields.io/badge/TailwindCSS-3.x-06B6D4?style=flat&logo=tailwind-css&logoColor=white)](https://tailwindcss.com)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-**Live Demo - 🚧Coming Soon** · **[📐 Architecture](#architecture)** · **[🛠 Local Setup](#local-development)**
+**Live Demo - https://d2m1l4se2aia7z.cloudfront.net** · **[📐 Architecture](#architecture)** · **[🛠 Local Setup](#local-development)**
 
 [![Figma Screens](https://img.shields.io/badge/Figma-Screens_&_Wireframes-F24E1E?style=flat&logo=figma&logoColor=white)](https://www.figma.com/proto/oJFmuI4LtDbxAclJpWCB4D/02-Screens-Desktop?page-id=0%3A1&node-id=10-2&p=f&viewport=-201%2C410%2C0.08&t=7LZr5Vkwwvbm912B-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=10%3A2)
 [![Figma Design System](https://img.shields.io/badge/Figma-Design_System-F24E1E?style=flat&logo=figma&logoColor=white)](https://www.figma.com/design/aPbyMgNMgebBi6W58bnjY3/01-Design-System?node-id=48-8&t=DVKvouhTxbgukO8o-1)
@@ -45,10 +45,10 @@ Three surfaces — one coherent product:
 
 ## Live Demo
 
-| Role       | Credentials                         | What to Try                                                                                          |
-| ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------- |
-| **Client** | Sign up with your email             | Submit a request with a file attachment — watch the status update in your dashboard in real time     |
-| **Admin**  | Request access via the contact form | Approve and reject requests, add internal notes, observe the EventBridge → SES notification pipeline |
+| Role       | Credentials                         | What to Try                                                                                                                                                                              |
+| ---------- | ----------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Client** | Sign up with your email             | Submit a request with a file attachment — watch the status update in your dashboard in real time                                                                                         |
+| **Admin**  | Admin demo access coming in Phase 3 | Approve and reject requests, add internal notes, observe the EventBridge → SES notification pipeline — admin credentials will be available once the public demo environment is finalized |
 
 > Demo runs on AWS SES sandbox — email notifications deliver to verified addresses only.
 
@@ -296,7 +296,7 @@ aws sts get-caller-identity # Must return your IAM identity
 ### 1. Clone and install
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/clientflow-portal.git
+git clone https://github.com/JasonWeimar/clientflow-portal.git
 cd clientflow-portal
 
 cd frontend && npm install
@@ -307,10 +307,10 @@ cd ../backend && npm install
 
 ```bash
 # frontend/.env.local
-VITE_API_BASE_URL=https://YOUR_API_ID.execute-api.us-east-1.amazonaws.com
-VITE_COGNITO_USER_POOL_ID=us-east-1_XXXXXXXXX
+VITE_API_BASE_URL=https://YOUR_API_ID.execute-api.us-west-1.amazonaws.com
+VITE_COGNITO_USER_POOL_ID=us-west-1_XXXXXXXXX
 VITE_COGNITO_CLIENT_ID=XXXXXXXXXXXXXXXXXXXXXXXXXX
-VITE_AWS_REGION=us-east-1
+VITE_AWS_REGION=us-west-1
 ```
 
 ### 3. Start the development server
@@ -408,7 +408,7 @@ Built as the flagship project in my portfolio demonstrating AWS cloud developmen
 
 <div align="center">
 
-**Live Demo - Coming Soon🚧** · **Portfolio - (https://jasonweimarstack1.com)** · **LinkedIn - (https://linkedin.com/in/https://www.linkedin.com/in/jason-weimar-3b6592228/)**
+**Live Demo - Coming Soon🚧** · **Portfolio - (https://jasonweimarstack1.com)** · **LinkedIn - (https://www.linkedin.com/in/jason-weimar-3b6592228/)**
 
 _Designed in Figma · Built with React + TypeScript · Deployed on AWS_
 
