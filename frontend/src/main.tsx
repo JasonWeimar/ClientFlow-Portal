@@ -6,6 +6,7 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
 import { Amplify } from "aws-amplify";
+import { cognitoUserPoolsTokenProvider } from "aws-amplify/auth/cognito";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import App from "./App";
 import "./index.css";
@@ -18,9 +19,27 @@ Amplify.configure({
     Cognito: {
       userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID,
       userPoolClientId: import.meta.env.VITE_COGNITO_CLIENT_ID,
-      // loginWith.email: allows sign-in with email (matching User Pool config)
       loginWith: { email: true },
     },
+  },
+});
+
+// Override default localStorage with sessionStorage.
+// Tokens are cleared when the browser tab closes — prevents stale
+// admin sessions from blocking demo credential logins.
+cognitoUserPoolsTokenProvider.setKeyValueStorage({
+  getItem: (key: string) => Promise.resolve(sessionStorage.getItem(key)),
+  setItem: (key: string, value: string) => {
+    sessionStorage.setItem(key, value);
+    return Promise.resolve();
+  },
+  removeItem: (key: string) => {
+    sessionStorage.removeItem(key);
+    return Promise.resolve();
+  },
+  clear: () => {
+    sessionStorage.clear();
+    return Promise.resolve();
   },
 });
 
