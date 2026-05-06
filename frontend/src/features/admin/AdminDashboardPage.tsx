@@ -1,5 +1,8 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { signOut } from "aws-amplify/auth";
+import { Button } from "../../components/ui/Button";
 import { getRequests } from "../../api/requests";
 import { RequestTable } from "./RequestTable";
 import { StatCard } from "./StatCard";
@@ -25,6 +28,13 @@ export default function AdminDashboardPage() {
   const [statusFilter, setStatusFilter] = useState<RequestStatus | "ALL">(
     "ALL",
   );
+
+  const navigate = useNavigate();
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/login");
+  };
 
   // Same queryKey as DashboardPage — both use ['requests'].
   // If the admin navigated from DashboardPage, this returns cached data instantly.
@@ -52,7 +62,14 @@ export default function AdminDashboardPage() {
   };
 
   return (
-    <PageWrapper title="Admin Dashboard">
+    <PageWrapper
+      title="Admin Dashboard"
+      action={
+        <Button variant="ghost" onClick={handleLogout}>
+          Log out
+        </Button>
+      }
+    >
       {/* Stat cards — counts derived from cached data, not extra API calls */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 mb-6">
         <StatCard label="Total" value={stats.total} />
