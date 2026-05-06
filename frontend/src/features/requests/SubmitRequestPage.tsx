@@ -5,6 +5,9 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { RequestFormSchema, RequestFormValues } from "./requestSchema";
 import { apiClient } from "../../lib/apiClient";
+import { Link } from "react-router-dom";
+import { PageWrapper } from "../../components/layout/PageWrapper";
+import { Button } from "../../components/ui/Button";
 import { uploadFile } from "../../services/upload.service";
 
 export default function SubmitRequestPage() {
@@ -59,10 +62,15 @@ export default function SubmitRequestPage() {
   };
 
   return (
-    <div className="max-w-xl mx-auto py-12 px-4">
-      <h1 className="text-2xl font-bold text-slate-900 mb-8">
-        Submit a Service Request
-      </h1>
+    <PageWrapper
+      title="Submit a Service Request"
+      maxWidth="narrow"
+      back={
+        <Button variant="ghost" as={Link} to="/dashboard">
+          ← Back
+        </Button>
+      }
+    >
       <form
         onSubmit={handleSubmit((data) => mutation.mutate(data))}
         className="space-y-6"
@@ -142,6 +150,6 @@ export default function SubmitRequestPage() {
           </p>
         )}
       </form>
-    </div>
+    </PageWrapper>
   );
 }
