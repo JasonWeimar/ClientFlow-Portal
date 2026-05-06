@@ -1,11 +1,11 @@
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { z } from "zod";
-import { useNavigate, useLocation, Link } from "react-router-dom";
+import { Button } from "../../components/ui/Button";
+import { Input } from "../../components/ui/Input";
 import { useAuth } from "../../hooks/useAuth";
 import { AuthCard } from "./AuthCard";
-import { Input } from "../../components/ui/Input";
-import { Button } from "../../components/ui/Button";
 
 // ── Validation Schema —————
 // Zod v4 syntax: z.email() — NOT z.string().email() (that is Zod v3).
@@ -118,6 +118,29 @@ export default function LoginPage() {
           </Link>
         </p>
       </form>
+      {/* Demo credentials — for recruiters and portfolio reviewers */}
+      <div className="mt-6 rounded-lg border border-blue-100 bg-blue-50 p-4">
+        <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-blue-600">
+          Demo Credentials
+        </p>
+        <div className="space-y-3">
+          <div>
+            <p className="text-xs font-medium text-gray-500">Client Account</p>
+            <p className="text-sm text-gray-800">jasonweimar87@gmail.com</p>
+            <p className="text-sm text-gray-800">Test123!</p>
+          </div>
+          <div className="border-t border-blue-100 pt-3">
+            <p className="text-xs font-medium text-gray-500">Admin Account</p>
+            <p className="text-sm text-gray-800">admin@clientflow.com</p>
+            <p className="text-sm text-gray-800">Admin123!</p>
+          </div>
+        </div>
+        <p className="mt-3 border-t border-blue-100 pt-3 text-xs text-gray-400">
+          System emails (status notifications, confirmations) are currently
+          limited to verified addresses. Create your own account to experience
+          the full email notification flow once available.
+        </p>
+      </div>
     </AuthCard>
   );
 }

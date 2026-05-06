@@ -114,7 +114,7 @@ export const handler = async (
       new PutEventsCommand({
         Entries: [
           {
-            Source: "clientflow.api",
+            Source: "clientflow",
             DetailType: "StatusChanged",
             Detail: JSON.stringify({
               requestId,
